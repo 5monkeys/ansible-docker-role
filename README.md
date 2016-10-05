@@ -18,3 +18,6 @@ docker_network_name: foobar  # If defined, creates a docker network with this na
 docker_network_driver: bridge  # Default
 docker_network_subnet: 172.25.0.0/16  # Default
 ```
+
+    NOTE: See [playbook.example.yml](https://github.com/5monkeys/ansible-docker-role/blob/master/playbook.example.yml) for usage example
+    
