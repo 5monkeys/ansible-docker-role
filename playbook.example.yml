@@ -1,0 +1,23 @@
+---
+
+- hosts: web
+
+  become: yes
+  become_user: root
+
+  docker_network_name: foobar
+
+  roles:
+    - docker
+
+  tasks:
+    - name: nginx container
+      docker:
+        image: nginx
+        state: started
+        restart_policy: always
+        restart_policy_retry: 3
+        ports:
+          - 0.0.0.0:80:80
+      tags:
+        - deploy

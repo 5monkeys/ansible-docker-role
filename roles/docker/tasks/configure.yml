@@ -1,0 +1,26 @@
+---
+
+- name: Assert docker network exists
+  when: docker_network_name is defined
+  shell: "docker network ls | grep \" {{ docker_network_name }} \"; /bin/true"
+  register: docker_network
+  changed_when: docker_network.stdout|length == 0
+  ignore_errors: true
+
+- name: Create docker network
+  when: docker_network|changed
+  shell: docker network create -d {{ docker_network_driver }} --subnet {{ docker_network_subnet }} {{ docker_network_name }}
+
+- name: Restart docker
+  when: docker_network|changed
+  service:
+    name: docker
+    state: restarted
+
+# TODO: Implement UFW docker0 vs custom docker network handling
+#- name: Allow incoming trafic from local docker0 networks
+#  when: ufw_allow_subnet is defined
+#  ufw:
+#    rule: allow
+#    from_ip: "{{ ansible_docker0.ipv4.address | ipsubnet(ufw_allow_subnet, 0) }}"
+#    state: reloaded

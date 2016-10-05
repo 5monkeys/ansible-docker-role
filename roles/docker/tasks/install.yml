@@ -1,0 +1,58 @@
+---
+
+- name: Install kernel extras
+  apt:
+    name: "linux-image-extra-{{ ansible_kernel }}"
+    state: present
+    update_cache: yes
+    cache_valid_time: 600
+
+- name: Add gpg key
+  apt_key:
+    keyserver: hkp://p80.pool.sks-keyservers.net:80
+    id: 58118E89F3A912897C070ADBF76221572C52609D
+
+- name: Add apt repository
+  apt_repository:
+    repo: deb https://apt.dockerproject.org/repo ubuntu-trusty main  # TODO: Change ubuntu-trusty
+    update_cache: yes
+    state: present
+
+- name: Install docker
+  apt:
+    name: docker-engine
+    state: present
+    update_cache: yes
+    cache_valid_time: 600
+
+- name: Add ubuntu user to the docker group
+  user:
+    name: ubuntu
+    groups: docker
+    append: yes
+
+- name: Install pip, python-dev package with apt
+  apt:
+    pkg: "{{ item }}"
+    state: latest
+    update_cache: yes
+    cache_valid_time: 600
+  with_items:
+    - python-dev
+    - python-pip
+
+- name: Upgrade latest pip, setuptools, docker-py with pip
+  pip:
+    name: "{{ item.name }}"
+    state: latest
+  with_items:
+    - { name: pip, version: latest }
+    - { name: setuptools, version: latest }
+    - { name: docker-py, version: latest }
+  tags:
+    - upgrade
+
+- name: Start docker
+  service:
+    name: docker
+    state: started
