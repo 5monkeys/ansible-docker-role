@@ -49,8 +49,7 @@
     - { name: pip, version: latest }
     - { name: setuptools, version: latest }
     - { name: docker-py, version: latest }
-  tags:
-    - upgrade
+    - { name: docker-compose, version: latest }
 
 - name: Start docker
   service:

@@ -5,18 +5,22 @@
   become: yes
   become_user: root
 
-  docker_network_name: foobar
-
   roles:
     - docker
 
   tasks:
+    - name: docker network
+      docker_network:
+        name: foobar
+
     - name: nginx container
-      docker:
+      docker_container:
         image: nginx
         state: started
         restart_policy: always
         restart_policy_retry: 3
+        networks:
+          - foobar
         ports:
           - 0.0.0.0:80:80
       tags:

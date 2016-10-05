@@ -1,4 +1,0 @@
----
-
-docker_network_driver: bridge
-docker_network_subnet: 172.25.0.0/16

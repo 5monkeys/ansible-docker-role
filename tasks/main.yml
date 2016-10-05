@@ -2,9 +2,4 @@
 
 - include: install.yml
   tags:
-    - install
-
-- include: configure.yml
-  tags:
-    - install
-    - configure
+    - install-docker
