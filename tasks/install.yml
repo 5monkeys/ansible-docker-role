@@ -50,6 +50,7 @@
     - { name: setuptools, version: latest }
     - { name: docker-py, version: latest }
     - { name: docker-compose, version: latest }
+    - { name: PyYAML, version: latest }
 
 - name: Start docker
   service:
