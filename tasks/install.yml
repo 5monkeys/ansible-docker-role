@@ -41,20 +41,24 @@
     - python-dev
     - python-pip
 
-- name: Upgrade latest pip, setuptools, docker-py with pip
+- name: Upgrade latest pip, setuptools, with pip
   pip:
     name: "{{ item.name }}"
     state: latest
   with_items:
     - { name: pip, version: latest }
     - { name: setuptools, version: latest }
-    # Workaround for https://github.com/ansible/ansible/issues/17495, should be
-    # fixed when ansible 2.2 is released, see
-    # https://github.com/ansible/ansible/commit/39aa740531f171a557e8604babd493793d63323e
-    # TODO: Remove when ansible 2.2 is released
     - { name: docker-py, version: "1.9.0" }
     - { name: docker-compose, version: latest }
     - { name: PyYAML, version: latest }
+
+
+# Workaround for https://github.com/ansible/ansible/issues/17495, should be
+# fixed when ansible 2.2 is released, see
+# https://github.com/ansible/ansible/commit/39aa740531f171a557e8604babd493793d63323e
+# TODO: Remove when ansible 2.2 is released
+- name: Install specific version of docker-py
+  pip: name=docker-py version=1.9.0
 
 - name: Start docker
   service:
