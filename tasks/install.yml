@@ -14,7 +14,7 @@
 
 - name: Add apt repository
   apt_repository:
-    repo: deb https://apt.dockerproject.org/repo ubuntu-trusty main  # TODO: Change ubuntu-trusty
+    repo: "deb https://apt.dockerproject.org/repo ubuntu-{{ ansible_distribution_release }} main"
     update_cache: yes
     state: present
 
