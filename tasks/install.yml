@@ -48,18 +48,9 @@
   with_items:
     - pip
     - setuptools
-#    - docker-py
+    - docker-py
     - docker-compose
     - PyYAML
-
-
-# Workaround for https://github.com/ansible/ansible/issues/17495, should be
-# fixed when ansible 2.2 is released, see
-# https://github.com/ansible/ansible/commit/39aa740531f171a557e8604babd493793d63323e
-# TODO: Remove when ansible 2.2 is released
-
-- name: Install specific version of docker-py
-  pip: name=docker-py version=1.9.0
 
 - name: Start docker
   service:
