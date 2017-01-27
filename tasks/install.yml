@@ -53,10 +53,10 @@
     - PyYAML
 
 
-# Workaround for https://github.com/ansible/ansible/issues/17495, should be
-# fixed when ansible 2.2 is released, see
-# https://github.com/ansible/ansible/commit/39aa740531f171a557e8604babd493793d63323e
-# TODO: Remove when ansible 2.2 is released
+# Workaround for https://github.com/ansible/ansible/issues/20380, should be
+# fixed when ansible 2.3 is released, see
+# https://github.com/ansible/ansible/commit/e2a1ce2916e9b87fe1ad4a1011c04ef8d2faf046
+# TODO: Remove when ansible 2.3 is released
 
 - name: Install specific version of docker-py
   pip: name=docker-py version=1.9.0
