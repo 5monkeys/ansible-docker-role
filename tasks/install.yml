@@ -2,25 +2,32 @@
 
 - name: Install kernel extras
   apt:
-    name: "linux-image-extra-{{ ansible_kernel }}"
+    name: "{{ item }}"
     state: present
     update_cache: yes
     cache_valid_time: 600
+  with_items:
+    - "linux-image-extra-{{ ansible_kernel }}"
+    - "linux-image-extra-virtual"
+    - "apt-transport-https"
+    - "ca-certificates"
+    - "gnupg-curl"
+    - "software-properties-common"
 
 - name: Add gpg key
   apt_key:
-    keyserver: hkp://p80.pool.sks-keyservers.net:80
-    id: 58118E89F3A912897C070ADBF76221572C52609D
+    keyserver: https://download.docker.com/linux/ubuntu/gpg
+    id: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
 
 - name: Add apt repository
   apt_repository:
-    repo: "deb https://apt.dockerproject.org/repo ubuntu-{{ ansible_distribution_release }} main"
+    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
     update_cache: yes
     state: present
 
 - name: Install docker
   apt:
-    name: docker-engine
+    name: docker-ce
     state: present
     update_cache: yes
     cache_valid_time: 600
@@ -30,36 +37,6 @@
     name: ubuntu
     groups: docker
     append: yes
-
-- name: Install pip, python-dev package with apt
-  apt:
-    pkg: "{{ item }}"
-    state: latest
-    update_cache: yes
-    cache_valid_time: 600
-  with_items:
-    - python-dev
-    - python-pip
-
-- name: Upgrade latest pip, setuptools, with pip
-  pip:
-    name: "{{ item }}"
-    state: latest
-  with_items:
-    - pip
-    - setuptools
-#    - docker-py
-    - docker-compose
-    - PyYAML
-
-
-# Workaround for https://github.com/ansible/ansible/issues/20380, should be
-# fixed when ansible 2.3 is released, see
-# https://github.com/ansible/ansible/commit/e2a1ce2916e9b87fe1ad4a1011c04ef8d2faf046
-# TODO: Remove when ansible 2.3 is released
-
-- name: Install specific version of docker-py
-  pip: name=docker-py version=1.9.0
 
 - name: Start docker
   service:
