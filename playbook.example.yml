@@ -1,27 +1,18 @@
 ---
 
-- hosts: web
-
+- name: Install Docker CE
+  hosts: all
   become: yes
   become_user: root
-
   roles:
     - docker
 
-  tasks:
-    - name: docker network
-      docker_network:
-        name: foobar
-
-    - name: nginx container
-      docker_container:
-        image: nginx
-        state: started
-        restart_policy: always
-        restart_policy_retry: 3
-        networks:
-          - foobar
-        ports:
-          - 0.0.0.0:80:80
-      tags:
-        - deploy
+- name: Setup Swarm Managers
+  hosts: managers
+  become: yes
+  become_user: root
+  vars:
+    docker_home: ../.docker
+    docker_tls_organization: Acme Inc.
+  roles:
+    - docker/manager

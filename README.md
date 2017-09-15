@@ -12,4 +12,4 @@ Run your playbook with `install-docker` tag to install and configure docker
 ansible-playbook -i <ip>, <playbook>.yml --tags install-docker
 ```
 
-**NOTE:** See [playbook.example.yml](https://github.com/5monkeys/ansible-docker-role/blob/master/playbook.example.yml) for usage example
+**NOTE:** See [playbook.example.yml](https://github.com/5monkeys/ansible-docker-role/blob/ce/playbook.example.yml) for usage example
