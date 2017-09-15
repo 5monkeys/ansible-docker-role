@@ -1,0 +1,28 @@
+---
+
+- name: Configure docker.service with TLS and TCP
+  ini_file:
+    dest: /etc/systemd/system/multi-user.target.wants/docker.service
+    section: Service
+    option: ExecStart
+    value: >
+      /usr/bin/dockerd
+      -H fd://
+      -H 0.0.0.0:2376
+  notify:
+    - restart docker
+
+      #--tlsverify
+      #--tlscacert {{ docker_tls_path }}/ca.pem
+      #--tlscert {{ docker_tls_path }}/server-cert.pem
+      #--tlskey {{ docker_tls_path }}/server-key.pem
+- name: Verify swarm manager
+  shell: docker node ls
+  ignore_errors: true
+  register: verify_swarm_manager
+
+- name: Initialize swarm manager
+  shell: "docker swarm init --advertise-addr {{ ansible_eth0.ipv4.address }}"
+  when: verify_swarm_manager|failed
+  notify:
+    - restart docker

@@ -38,7 +38,21 @@
     groups: docker
     append: yes
 
-- name: Start docker
-  service:
-    name: docker
-    state: started
+- name: Install pip
+  apt:
+    pkg: "{{ item }}"
+    state: latest
+    update_cache: yes
+    cache_valid_time: 600
+  with_items:
+    - python-pip
+    - python-dev
+
+- name: Upgrade pip
+  pip:
+    name: pip
+    state: latest
+
+- name: install pyOpenSSL
+  pip:
+    name: pyOpenSSL

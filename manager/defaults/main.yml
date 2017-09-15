@@ -1,0 +1,5 @@
+---
+
+docker_tls_organization: Acme
+docker_tls_path: /etc/docker/certs
+docker_home: .docker

@@ -1,0 +1,6 @@
+---
+
+- import_tasks: tls.yml
+- import_tasks: swarm.yml
+  tags:
+    - swarm
