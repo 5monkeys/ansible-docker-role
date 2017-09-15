@@ -80,7 +80,7 @@
       -out server-cert.pem
   args:
     chdir: "{{ docker_tls_path }}"
-    creates: "{{ '__force__' if root_cert|changed else 'server-cert.pem'}}"
+    creates: "{{ '__force__' if root_cert is defined and root_cert|changed else 'server-cert.pem'}}"
   notify:
     - restart docker
   tags:
@@ -137,7 +137,7 @@
       -out cert.pem
   args:
     chdir: "{{ docker_tls_path }}"
-    creates: "{{ '__force__' if root_cert|changed else 'cert.pem'}}"
+    creates: "{{ '__force__' if root_cert is defined and root_cert|changed else 'cert.pem'}}"
   tags:
     - tls
     - tls-client
@@ -180,3 +180,4 @@
   tags:
     - tls
     - tls-client
+    - tls-download
