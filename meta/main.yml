@@ -1,6 +1,7 @@
 ---
 
 galaxy_info:
+  role_name: docker-swarm
   author: 5 Monkeys Agency AB
   description: Role for setting up a docker swarm manager
   company: 5 Monkeys Agency AB
