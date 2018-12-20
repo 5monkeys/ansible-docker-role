@@ -83,7 +83,6 @@
 - name: server-cert.pem
   openssl_certificate:
     path: "{{ docker_tls_path }}/server-cert.pem"
-    privatekey_path: "{{ docker_tls_path }}/server-key.pem"
     csr_path: "{{ docker_tls_path }}/server.csr"
     provider: ownca
     ownca_path: "{{ docker_tls_path }}/ca.pem"
@@ -125,7 +124,7 @@
   tags:
     - tls-client
 
-- name: server.csr
+- name: client.csr
   openssl_csr:
     path: "{{ docker_tls_path }}/client.csr"
     privatekey_path: "{{ docker_tls_path }}/key.pem"
@@ -159,7 +158,6 @@
 - name: cert.pem
   openssl_certificate:
     path: "{{ docker_tls_path }}/cert.pem"
-    privatekey_path: "{{ docker_tls_path }}/key.pem"
     csr_path: "{{ docker_tls_path }}/client.csr"
     provider: ownca
     ownca_path: "{{ docker_tls_path }}/ca.pem"
