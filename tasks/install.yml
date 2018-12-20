@@ -2,17 +2,16 @@
 
 - name: Install kernel extras
   apt:
-    name: "{{ item }}"
+    name:
+      - "linux-image-extra-{{ ansible_kernel }}"
+      - "linux-image-extra-virtual"
+      - "apt-transport-https"
+      - "ca-certificates"
+      - "gnupg-curl"
+      - "software-properties-common"
     state: present
     update_cache: true
     cache_valid_time: 600
-  with_items:
-    - "linux-image-extra-{{ ansible_kernel }}"
-    - "linux-image-extra-virtual"
-    - "apt-transport-https"
-    - "ca-certificates"
-    - "gnupg-curl"
-    - "software-properties-common"
 
 - name: Add gpg key
   apt_key:
