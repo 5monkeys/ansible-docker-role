@@ -2,7 +2,7 @@
 
 docker_home: .docker
 docker_hosts:
-  - fd://
+  - unix://
   - tcp://0.0.0.0:2376
 docker_storage_driver: overlay2
 

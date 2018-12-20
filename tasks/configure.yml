@@ -1,9 +1,34 @@
 ---
 
+- name: create systemd docker override directory
+  file:
+    path: "/etc/systemd/system/docker.service.d"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: add systemd docker override
+  template:
+    src: "override.conf.j2"
+    dest: "/etc/systemd/system/docker.service.d/override.conf"
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart docker
+
 - name: Configure docker daemon
   template:
-    src: daemon.json.j2
-    dest: /etc/docker/daemon.json
+    src: "daemon.json.j2"
+    dest: "/etc/docker/daemon.json"
     backup: true
   notify:
     - restart docker
+
+- name: Enable the Docker daemon as a service and start it.
+  systemd:
+    name: docker
+    daemon-reload: true
+    state: started
+    enabled: true
