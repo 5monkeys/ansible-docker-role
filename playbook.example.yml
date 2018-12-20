@@ -2,14 +2,14 @@
 
 - name: Install Docker CE
   hosts: all
-  become: yes
+  become: true
   become_user: root
   roles:
     - docker
 
 - name: Setup Swarm Managers
   hosts: managers
-  become: yes
+  become: true
   become_user: root
   vars:
     docker_home: ../.docker

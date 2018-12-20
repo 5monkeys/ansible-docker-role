@@ -1,7 +1,21 @@
 ---
 
-- include_tasks: install.yml
-  become: yes
+- import_tasks: install.yml
+  become: true
   become_user: root
   tags:
-    - install-docker
+    - install
+
+- import_tasks: tls.yml
+  when: docker_use_tls
+  tags:
+    - tls
+
+- import_tasks: swarm.yml
+  when: docker_enable_swarm
+  tags:
+    - swarm
+
+- import_tasks: configure.yml
+  tags:
+    - configure

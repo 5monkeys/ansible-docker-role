@@ -1,0 +1,19 @@
+---
+
+galaxy_info:
+  author: 5 Monkeys Agency AB
+  description: Role for setting up a docker swarm manager
+  company: 5 Monkeys Agency AB
+  license: MIT
+
+  min_ansible_version: 2.7
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - trusty
+        - xenial
+        - artful
+        - bionic
+  galaxy_tags: ["docker", "swarm", "manager", "tls"]
+  dependencies: []

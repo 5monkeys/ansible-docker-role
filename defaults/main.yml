@@ -1,0 +1,13 @@
+---
+
+docker_home: .docker
+docker_hosts:
+  - fd://
+  - tcp://0.0.0.0:2376
+docker_storage_driver: overlay2
+
+docker_use_tls: true
+docker_tls_organization: Acme
+docker_tls_path: /etc/docker/certs
+
+docker_enable_swarm: true
