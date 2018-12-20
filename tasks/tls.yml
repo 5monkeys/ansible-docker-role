@@ -161,7 +161,7 @@
     path: "{{ docker_tls_path }}/cert.pem"
     privatekey_path: "{{ docker_tls_path }}/key.pem"
     csr_path: "{{ docker_tls_path }}/client.csr"
-    provider: selfsigned
+    provider: ownca
     ownca_path: "{{ docker_tls_path }}/ca.pem"
     ownca_privatekey_path: "{{ docker_tls_path }}/ca-key.pem"
   tags:
