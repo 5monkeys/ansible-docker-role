@@ -1,6 +1,6 @@
 {
     "hosts": {{ docker_hosts|to_json }},
-    "storage-driver": "{{ docker_storage_driver }}"{% if docker_use_tls ‰},{% endif %}
+    "storage-driver": "{{ docker_storage_driver }}"{% if docker_use_tls %},{% endif %}
     {% if docker_use_tls %}
     "tlsverify": true,
     "tlscacert": "{{ docker_tls_path }}/ca.pem",
