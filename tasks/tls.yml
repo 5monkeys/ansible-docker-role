@@ -11,7 +11,6 @@
 - name: ca-key.pem
   openssl_privatekey:
     path: "{{ docker_tls_path }}/ca-key.pem"
-    size: 8192
   register: root_cert
   notify:
     - restart docker
