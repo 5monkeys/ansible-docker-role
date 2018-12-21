@@ -6,15 +6,3 @@
     advertise_addr: "{{ ansible_eth0.ipv4.address }}"
   notify:
     - restart docker
-
-#- name: Verify swarm manager
-#  shell: docker node ls
-#  ignore_errors: true
-#  changed_when: false
-#  register: verify_swarm_manager
-#
-#- name: Initialize swarm manager
-#  shell: "docker swarm init --advertise-addr {{ ansible_eth0.ipv4.address }}"
-#  when: verify_swarm_manager|failed
-#  notify:
-#    - restart docker
