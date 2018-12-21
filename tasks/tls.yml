@@ -23,6 +23,7 @@
     privatekey_path: "{{ docker_tls_path }}/ca-key.pem"
     common_name: "Root CA Certificate"
     organization_name: "{{ docker_tls_organization }}"
+    basic_constraints: "CA:true"
   notify:
     - restart docker
   tags:
