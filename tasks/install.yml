@@ -1,17 +1,26 @@
 ---
 
+- name: Update apt cache
+  apt:
+    update_cache: true
+    cache_valid_time: 600
+
 - name: Install kernel extras
   apt:
     name:
       - "linux-image-extra-{{ ansible_kernel }}"
       - "linux-image-extra-virtual"
+    state: present
+  when: docker_install_kernel_extras
+
+- name: Install system dependencies
+  apt:
+    name:
       - "apt-transport-https"
       - "ca-certificates"
       - "gnupg-curl"
       - "software-properties-common"
     state: present
-    update_cache: true
-    cache_valid_time: 600
 
 - name: Add gpg key
   apt_key:
