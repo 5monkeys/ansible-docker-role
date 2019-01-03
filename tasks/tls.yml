@@ -1,5 +1,17 @@
 ---
 
+- name: Install pip
+  apt:
+    name: "python-pip"
+    state: present
+    update_cache: true
+    cache_valid_time: 600
+
+- name: Install pyOpenSSL as required by openssl_certificate-module
+  pip:
+    name: pyOpenSSL
+    version: "{{ py_openssl_version }}"
+
 - name: Create certificates directory
   file:
     path: "{{ docker_tls_path }}"

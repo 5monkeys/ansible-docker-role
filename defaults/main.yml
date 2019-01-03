@@ -12,3 +12,4 @@ docker_tls_organization: "Acme"
 docker_tls_path: "/etc/docker/certs"
 
 docker_enable_swarm: true
+docker_py_openssl_version: "18.0.0"
