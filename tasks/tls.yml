@@ -10,7 +10,7 @@
 - name: Install pyOpenSSL as required by openssl_certificate-module
   pip:
     name: pyOpenSSL
-    version: "{{ py_openssl_version }}"
+    version: "{{ docker_py_openssl_version }}"
 
 - name: Create certificates directory
   file:
