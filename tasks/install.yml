@@ -35,15 +35,13 @@
 
 - name: Install docker
   apt:
-    name: docker-ce
+    name: "docker-ce{% if docker_ce_version %}={{ docker_ce_version*}}{% endif %}"
     state: present
-    update_cache: true
-    cache_valid_time: 600
 
 - name: Install docker python library
   pip:
     name: "docker"
-    version: "3.6.0"
+    version: "{{ docker_python_version }}"
 
 - name: Add ubuntu user to the docker group
   user:
