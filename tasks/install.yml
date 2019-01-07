@@ -33,9 +33,9 @@
     update_cache: true
     state: present
 
-- name: Install docker
+- name: Install docker with version {{ docker_ce_version|default("latest") }}
   apt:
-    name: "docker-ce{% if docker_ce_version %}={{ docker_ce_version }}*{% endif %}"
+    name: "docker-ce{% if docker_ce_version|default(None) %}={{ docker_ce_version }}*{% endif %}"
     state: present
 
 - name: Install docker python library
