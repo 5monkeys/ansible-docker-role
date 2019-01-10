@@ -1,23 +1,25 @@
 ---
 
-- name: Setup swarm manager
+- name: Setup docker
   hosts: all
+  pre_tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: true
+        cache_valid_time: 600
+    - name: Update apt cache
+      apt:
+        name: "iproute"
+        state: present
+    - name: Gather facts now that prerequisite packages are installed
+      setup: filter=ansible_*
   become: true
   become_user: root
   roles:
     - ansible-docker-role
-  pre_tasks:
-    - name: Install pip
-      apt:
-        name: "python-pip"
-        state: present
-        update_cache: true
-        cache_valid_time: 600
-    - name: Install pyOpenSSL as required by openssl_certificate-module
-      pip:
-        name: pyOpenSSL
-        version: 18.0.0
   vars:
     docker_install_kernel_extras: false
     docker_home: "{{ inventory_dir }}/.certs/"
     docker_tls_organization: test
+    docker_ce_version: "18.06"
+    docker_storage_driver: "vfs"

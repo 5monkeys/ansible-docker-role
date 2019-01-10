@@ -20,6 +20,7 @@
       - "ca-certificates"
       - "gnupg-curl"
       - "software-properties-common"
+      - "python-pip"
     state: present
 
 - name: Add gpg key

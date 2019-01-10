@@ -1,5 +1,7 @@
 # Ansible Docker Role
 
+[![Build Status](https://travis-ci.com/5monkeys/ansible-docker-role.svg?branch=role-refactor)](https://travis-ci.com/5monkeys/ansible-docker-role)
+
 ## Dependencies
 
 * Ansible >= 2.7
