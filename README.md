@@ -9,16 +9,22 @@
 
 ## Setup
 
-Install ansible and dependencies by running `pip install -r requirements.txt`.
+* Install ansible and dependencies by running `pip install -r requirements.txt`.
 
-Add this role to your playbook requirements.yml:
+* Add this role to your playbook requirements.yml:
 
 ```yaml
 - src: https://github.com/5monkeys/ansible-docker-role
   name: docker
 ``` 
 
-Install playbook dependencies by running `ansible-galaxy install -r requirements.yml` 
+* Update `ansible.cfg` to search for roles relative to playbook:
+
+```ini
+roles_path = ./roles
+```
+
+* Install playbook dependencies by running `ansible-galaxy install -r requirements.yml`.
 
 ## Variables
 
