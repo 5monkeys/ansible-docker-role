@@ -1,0 +1,136 @@
+---
+
+- name: Install pip
+  apt:
+    name: "python-pip"
+    state: present
+    update_cache: true
+    cache_valid_time: 600
+
+- name: Install pyOpenSSL as required by openssl_certificate-module
+  pip:
+    name: pyOpenSSL
+    version: "{{ docker_py_openssl_version }}"
+
+- name: Create certificates directory
+  file:
+    path: "{{ docker_tls_path }}"
+    state: directory
+  tags:
+    - tls-server
+    - tls-client
+
+- name: ca-key.pem
+  openssl_privatekey:
+    path: "{{ docker_tls_path }}/ca-key.pem"
+  register: root_cert
+  notify:
+    - restart docker
+  tags:
+    - tls-root
+
+- name: ca.csr
+  openssl_csr:
+    path: "{{ docker_tls_path }}/ca.csr"
+    privatekey_path: "{{ docker_tls_path }}/ca-key.pem"
+    common_name: "Root CA Certificate"
+    organization_name: "{{ docker_tls_organization }}"
+    basic_constraints: "CA:true"
+  notify:
+    - restart docker
+  tags:
+    - tls-root
+
+- name: ca.pem
+  openssl_certificate:
+    path: "{{ docker_tls_path }}/ca.pem"
+    privatekey_path: "{{ docker_tls_path }}/ca-key.pem"
+    csr_path: "{{ docker_tls_path }}/ca.csr"
+    provider: selfsigned
+  notify:
+    - restart docker
+  tags:
+    - tls-root
+
+- name: server-key.pem
+  openssl_privatekey:
+    path: "{{ docker_tls_path }}/server-key.pem"
+  notify:
+    - restart docker
+  tags:
+    - tls-server
+
+
+- name: server.csr
+  openssl_csr:
+    path: "{{ docker_tls_path }}/server.csr"
+    privatekey_path: "{{ docker_tls_path }}/server-key.pem"
+    organization_name: "{{ docker_tls_organization }}"
+    extended_key_usage:
+      - "serverAuth"
+    subject_alt_name:
+      - "IP:{{ ansible_eth0.ipv4.address }}"
+      - "IP:127.0.0.1"
+      - "DNS:localhost"
+  tags:
+    - tls-server
+
+- name: server-cert.pem
+  openssl_certificate:
+    path: "{{ docker_tls_path }}/server-cert.pem"
+    csr_path: "{{ docker_tls_path }}/server.csr"
+    provider: ownca
+    ownca_path: "{{ docker_tls_path }}/ca.pem"
+    ownca_privatekey_path: "{{ docker_tls_path }}/ca-key.pem"
+  tags:
+    - tls-server
+
+- name: Configure docker daemon with TLS
+  template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+    backup: true
+  notify:
+    - restart docker
+  tags:
+    - tls-server
+
+- name: key.pem
+  openssl_privatekey:
+    path: "{{ docker_tls_path }}/key.pem"
+  tags:
+    - tls-client
+
+- name: client.csr
+  openssl_csr:
+    path: "{{ docker_tls_path }}/client.csr"
+    privatekey_path: "{{ docker_tls_path }}/key.pem"
+    organization_name: "{{ docker_tls_organization }}"
+    common_name: "client"
+    extendedKeyUsage:
+      - "clientAuth"
+  tags:
+    - tls-server
+
+- name: cert.pem
+  openssl_certificate:
+    path: "{{ docker_tls_path }}/cert.pem"
+    csr_path: "{{ docker_tls_path }}/client.csr"
+    provider: ownca
+    ownca_path: "{{ docker_tls_path }}/ca.pem"
+    ownca_privatekey_path: "{{ docker_tls_path }}/ca-key.pem"
+  tags:
+    - tls-client
+
+- name: Download client certificates
+  fetch:
+    src: "{{ docker_tls_path }}/{{ item }}"
+    dest: "{{ docker_home }}"
+    flat: true
+  with_items:
+    - ca.pem
+    - key.pem
+    - cert.pem
+  tags:
+    - tls-client
+    - tls-download
