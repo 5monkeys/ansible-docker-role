@@ -7,12 +7,12 @@
     - install
 
 - import_tasks: tls.yml
-  when: docker_use_tls
+  when: docker_use_tls|bool
   tags:
     - tls
 
 - import_tasks: swarm.yml
-  when: docker_enable_swarm
+  when: docker_enable_swarm|bool
   tags:
     - swarm
 
