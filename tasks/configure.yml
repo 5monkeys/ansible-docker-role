@@ -1,6 +1,6 @@
 ---
 
-- name: create systemd docker override directory
+- name: Create systemd docker override directory
   file:
     path: "/etc/systemd/system/docker.service.d"
     state: directory
@@ -8,7 +8,7 @@
     group: root
     mode: 0755
 
-- name: add systemd docker override
+- name: Add systemd docker override
   template:
     src: "override.conf.j2"
     dest: "/etc/systemd/system/docker.service.d/override.conf"
