@@ -6,6 +6,7 @@
     state: present
     update_cache: true
     cache_valid_time: 600
+    force_apt_get: true
 
 - name: Install pyOpenSSL as required by openssl_certificate-module
   pip:

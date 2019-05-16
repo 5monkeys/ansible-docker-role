@@ -4,12 +4,14 @@
   apt:
     update_cache: true
     cache_valid_time: 600
+    force_apt_get: true
 
 - name: Install kernel extras
   apt:
     name:
       - "linux-image-extra-{{ ansible_kernel }}"
       - "linux-image-extra-virtual"
+    force_apt_get: true
     state: present
   when: docker_install_kernel_extras|bool
 
@@ -21,6 +23,7 @@
       - "gnupg-curl"
       - "software-properties-common"
       - "python-pip"
+    force_apt_get: true
     state: present
 
 - name: Add gpg key
@@ -37,6 +40,7 @@
 - name: Install docker with version {{ docker_ce_version|default("latest") }}
   apt:
     name: "docker-ce{% if docker_ce_version|default(None) %}={{ docker_ce_version }}*{% endif %}"
+    force_apt_get: true
     state: present
 
 - name: Install docker python library
