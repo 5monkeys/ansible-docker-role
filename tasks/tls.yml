@@ -61,7 +61,6 @@
   tags:
     - tls-server
 
-
 - name: server.csr
   openssl_csr:
     path: "{{ docker_tls_path }}/server.csr"
@@ -73,6 +72,8 @@
       - "IP:{{ ansible_eth0.ipv4.address }}"
       - "IP:127.0.0.1"
       - "DNS:localhost"
+  notify:
+    - restart docker
   tags:
     - tls-server
 
@@ -83,6 +84,8 @@
     provider: ownca
     ownca_path: "{{ docker_tls_path }}/ca.pem"
     ownca_privatekey_path: "{{ docker_tls_path }}/ca-key.pem"
+  notify:
+    - restart docker
   tags:
     - tls-server
 
