@@ -1,4 +1,4 @@
-ansible==2.7.10
+ansible==2.8.0
 ansible-lint==4.1.0
 pyOpenSSL==19.0.0
 yamllint==1.15.0
