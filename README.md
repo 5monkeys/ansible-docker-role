@@ -43,7 +43,7 @@ docker_hosts:
 # What docker storage driver to use
 docker_storage_driver: "overlay2"
 # What version of the docker python library to use
-docker_python_version: "3.6.0"
+docker_python_version: "4.0.1"
 
 # If TLS should be enabled on the docker daemon and SSL-certificates generated
 docker_use_tls: true
@@ -55,7 +55,7 @@ docker_tls_path: "/etc/docker/certs"
 # If a docker swarm manager node should be initialized on the host
 docker_enable_swarm: true
 # What version of the python openssl library to use
-docker_py_openssl_version: "18.0.0"
+docker_py_openssl_version: "19.0.0"
 ```
 
 ## Example playbook
