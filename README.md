@@ -32,8 +32,8 @@ roles_path = ./roles
 # What docker version to be installed. Default is latest
 docker_ce_version:
 
-# If linux-image-extra packages should be installed
-docker_install_kernel_extras: true
+# If linux-image-extra packages should be installed. Needed for the AUFS storage driver.
+docker_install_kernel_extras: false
 # Where to download TLS-certificates
 docker_home: ".docker"
 # Maps to docker -H

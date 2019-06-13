@@ -1,5 +1,5 @@
 ---
-docker_install_kernel_extras: true
+docker_install_kernel_extras: false
 docker_home: ".docker"
 docker_hosts:
   - "unix://"

@@ -9,7 +9,6 @@
 - name: Install kernel extras
   apt:
     name:
-      - "linux-image-extra-{{ ansible_kernel }}"
       - "linux-image-extra-virtual"
     force_apt_get: true
     state: present
