@@ -51,6 +51,10 @@ docker_use_tls: true
 docker_tls_organization: "Acme"
 # Where to place certificates on host
 docker_tls_path: "/etc/docker/certs"
+# When the client certificate should expire. 
+docker_tls_client_expires_after: "+52w"
+# The client certificate common name
+docker_tls_client_common_name: "client"
 
 # If a docker swarm manager node should be initialized on the host
 docker_enable_swarm: true

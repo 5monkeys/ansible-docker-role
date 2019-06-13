@@ -110,7 +110,7 @@
     path: "{{ docker_tls_path }}/client.csr"
     privatekey_path: "{{ docker_tls_path }}/key.pem"
     organization_name: "{{ docker_tls_organization }}"
-    common_name: "client"
+    common_name: "{{ docker_tls_client_common_name }}"
     extendedKeyUsage:
       - "clientAuth"
   tags:
@@ -123,6 +123,7 @@
     provider: ownca
     ownca_path: "{{ docker_tls_path }}/ca.pem"
     ownca_privatekey_path: "{{ docker_tls_path }}/ca-key.pem"
+    ownca_not_after: "{{ docker_tls_client_expires_after|default(omit) }}"
   tags:
     - tls-client
 
