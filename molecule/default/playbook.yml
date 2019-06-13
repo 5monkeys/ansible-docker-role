@@ -21,5 +21,5 @@
     docker_install_kernel_extras: false
     docker_home: "{{ inventory_dir }}/.certs/"
     docker_tls_organization: test
-    docker_ce_version: "18.06"
+    docker_ce_version: "5:18.09"
     docker_storage_driver: "vfs"

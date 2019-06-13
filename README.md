@@ -29,7 +29,7 @@ roles_path = ./roles
 ## Variables
 
 ```yaml
-# What docker version to be installed. Default is latest
+# What docker version to be installed (18.06, 5:18.09). Default is latest.
 docker_ce_version:
 
 # If linux-image-extra packages should be installed. Needed for the AUFS storage driver.
