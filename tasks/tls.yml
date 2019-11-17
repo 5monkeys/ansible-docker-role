@@ -139,3 +139,9 @@
   tags:
     - tls-client
     - tls-download
+    # The tests may fail sometimes here because due to a race condition caused
+    # by files being downloaded to the same place by the different platforms
+    # molecule is run against. There seem to be no supported way of separating
+    # the workspaces between the platforms, so we have to skip this task when
+    # running tests.
+    - molecule-notest
