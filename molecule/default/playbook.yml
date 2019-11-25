@@ -7,9 +7,9 @@
       apt:
         update_cache: true
         cache_valid_time: 600
-    - name: Update apt cache
+    - name: Install required packages
       apt:
-        name: "iproute"
+        name: "iproute2"
         state: present
     - name: Gather facts now that prerequisite packages are installed
       setup: filter=ansible_*

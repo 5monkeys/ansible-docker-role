@@ -6,8 +6,16 @@ driver:
 lint:
   name: yamllint
 platforms:
-  - name: instance
+  - name: ubuntu16
     image: ubuntu:16.04
+    cap_add:
+      - SYS_ADMIN
+    volume_mounts:
+      - "/sys/fs/cgroup:/sys/fs/cgroup:ro"
+    command: /sbin/init
+    privileged: true
+  - name: ubuntu18
+    image: ubuntu:18.04
     cap_add:
       - SYS_ADMIN
     volume_mounts:

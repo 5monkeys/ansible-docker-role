@@ -14,14 +14,24 @@
     state: present
   when: docker_install_kernel_extras|bool
 
-- name: Install system dependencies
+- name: Install common system dependencies
   apt:
     name:
       - "apt-transport-https"
       - "ca-certificates"
-      - "gnupg-curl"
+      - "gnupg2"
       - "software-properties-common"
       - "python-pip"
+    force_apt_get: true
+    state: present
+
+- name: Install Ubuntu 16 system dependencies
+  when: |
+    ansible_facts['distribution'] == "Ubuntu"
+    and ansible_facts['distribution_major_version'] == "16"
+  apt:
+    name:
+      - "gnupg-curl"
     force_apt_get: true
     state: present
 
