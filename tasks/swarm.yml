@@ -1,9 +1,41 @@
 ---
 
-- name: Initialize swarm manager
+- name: Initialize swarm master
   docker_swarm:
     state: present
-    advertise_addr: "{{ ansible_eth0.ipv4.address }}"
+    advertise_addr: "{{ docker_swarm_addr }}"
+  # 'run_once' and 'delegate_to' allows us to register 'swarm' for all hosts
+  # Although this relies on declaration order of the hosts in order to work
+  # i.e. swarm master group has to come before manager/worker groups
+  run_once: true
+  delegate_to: "{{ groups['docker_swarm_managers'] | first }}"
   register: "swarm"
   notify:
     - restart docker
+
+- name: Declare swarm master address as a fact
+  set_fact:
+    swarm_master_address: "{{ docker_swarm_addr }}:{{ docker_swarm_port }}"
+  run_once: true
+  delegate_to: "{{ groups['docker_swarm_managers'] | first }}"
+
+- name: Join swarm worker nodes
+  docker_swarm:
+    state: join
+    advertise_addr: "{{ docker_swarm_addr }}"
+    listen_addr: "{{ docker_swarm_addr }}:{{ docker_swarm_port }}"
+    join_token: "{{ swarm.swarm_facts.JoinTokens.Worker }}"
+    remote_addrs: ["{{ swarm_master_address }}"]
+  # Skip all managers moonlighting as workers
+  when: "'docker_swarm_workers' in group_names
+    and 'docker_swarm_managers' not in group_names"
+
+- name: Join swarm manager nodes
+  docker_swarm:
+    state: join
+    advertise_addr: "{{ docker_swarm_addr }}"
+    listen_addr: "{{ docker_swarm_addr }}:{{ docker_swarm_port }}"
+    join_token: "{{ swarm.swarm_facts.JoinTokens.Manager }}"
+    remote_addrs: ["{{ swarm_master_address }}"]
+  when: "'docker_swarm_managers' in group_names
+    and inventory_hostname != groups['docker_swarm_managers'] | first"
