@@ -1,10 +1,12 @@
+import json
 import os
 
 import testinfra.utils.ansible_runner
 
-testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
+runner = testinfra.utils.ansible_runner.AnsibleRunner(
     os.environ["MOLECULE_INVENTORY_FILE"]
-).get_hosts("all")
+)
+testinfra_hosts = runner.get_hosts("all")
 
 
 def test_docker_running_and_enabled(host):
@@ -15,3 +17,30 @@ def test_docker_running_and_enabled(host):
 
 def test_able_to_access_docker_without_root(host):
     assert "docker" in host.user("ubuntu").groups
+
+
+def test_docker_swarm_enabled(host):
+    swarm_state = json.loads(
+        host.check_output(
+            "docker info --format '{{json .Swarm.LocalNodeState}}'"
+        )
+    )
+    assert swarm_state == "active"
+
+
+def test_docker_swarm_status(host):
+    swarm_info = json.loads(
+        host.check_output("docker info --format '{{json .Swarm}}'")
+    )
+    hostname = host.check_output("hostname -s")
+
+    if hostname in runner.get_hosts("docker_swarm_managers"):
+        msg = "Expected '%s' to be a manager" % hostname
+        assert swarm_info["ControlAvailable"], msg
+        assert swarm_info["Managers"] == 2
+        assert swarm_info["Nodes"] == 3
+    elif hostname in runner.get_hosts("docker_swarm_workers"):
+        msg = "Expected '%s' to be a worker" % hostname
+        assert not swarm_info["ControlAvailable"], msg
+    else:
+        assert False, "Unexpected hostname in swarm setup: %s" % hostname
