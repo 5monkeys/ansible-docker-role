@@ -14,7 +14,7 @@
     advertise_addr: "{{ docker_swarm_addr }}"
   # 'run_once' and 'delegate_to' allows us to register 'swarm' for all hosts
   # Although this relies on declaration order of the hosts in order to work
-  # i.e. swarm master group has to come before manager/worker groups
+  # i.e. swarm manager group has to come before the worker group
   run_once: true
   delegate_to: "{{ groups['docker_swarm_managers'] | first }}"
   register: "swarm"
@@ -35,8 +35,6 @@
     join_token: "{{ swarm.swarm_facts.JoinTokens.Worker }}"
     remote_addrs: ["{{ swarm_master_address }}"]
   # Skip all managers moonlighting as workers
-  # Managers already schedules tasks per default
-  #   See: https://docs.docker.com/engine/swarm/join-nodes/
   when: "'docker_swarm_workers' in group_names
     and 'docker_swarm_managers' not in group_names"
 
