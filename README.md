@@ -97,12 +97,15 @@ host1
 
 [docker_swarm_workers]
 host1
+
+[nodes]
+host1
 ```
 
 ```yaml
 # playbook.yml
 - name: Setup docker
-  hosts: all
+  hosts: nodes
   become: true
   become_user: root
   roles:
@@ -133,12 +136,16 @@ manager3
 worker1
 worker2
 manager3  # <-- A manager node accepting tasks
+
+[nodes:children]
+docker_swarm_managers
+docker_swarm_workers
 ```
 
 ```yaml
 # playbook.yml
 - name: Setup docker swarm
-  hosts: all
+  hosts: nodes
   become: true
   become_user: root
   roles:
@@ -165,14 +172,14 @@ labels, running your playbook again but now with an undefined or empty
 ```yml
 # playbook.yml
 - name: Setup docker swarm
-  hosts: all
+  hosts: nodes
   become: true
   become_user: root
   roles:
     - docker
   vars:
     docker_swarm_labels:
-      all_nodes: gets_this_label
+      nodes: gets_this_label
 ```
 
 ## Converting "manager and worker" node to "manager only" node
