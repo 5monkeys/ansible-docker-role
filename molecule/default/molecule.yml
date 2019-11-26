@@ -36,6 +36,7 @@ platforms:
     privileged: true
     groups:
       - docker_swarm_managers
+      - docker_swarm_workers
 
 provisioner:
   name: ansible

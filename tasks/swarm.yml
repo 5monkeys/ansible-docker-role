@@ -27,6 +27,8 @@
     join_token: "{{ swarm.swarm_facts.JoinTokens.Worker }}"
     remote_addrs: ["{{ swarm_master_address }}"]
   # Skip all managers moonlighting as workers
+  # Managers already schedules tasks per default
+  #   See: https://docs.docker.com/engine/swarm/join-nodes/
   when: "'docker_swarm_workers' in group_names
     and 'docker_swarm_managers' not in group_names"
 
@@ -39,3 +41,9 @@
     remote_addrs: ["{{ swarm_master_address }}"]
   when: "'docker_swarm_managers' in group_names
     and inventory_hostname != groups['docker_swarm_managers'] | first"
+
+- name: Set correct node availability on managers
+  docker_node:
+    availability: "{% if 'docker_swarm_workers' not in group_names %}drain{% else %}active{% endif %}"
+    hostname: "{{ ansible_hostname }}"
+  when: "'docker_swarm_managers' in group_names"

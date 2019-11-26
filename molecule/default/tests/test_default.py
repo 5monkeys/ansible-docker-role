@@ -46,6 +46,37 @@ def test_docker_swarm_status(host):
         assert False, "Unexpected hostname in swarm setup: %s" % hostname
 
 
+def test_docker_manager_node_availability(host):
+    hostname = host.check_output("hostname -s")
+
+    def get_node_info():
+        cmd = "docker node inspect self --format '{{json .Spec}}'"
+        return json.loads(host.check_output(cmd))
+
+    if hostname == "ubuntu18":
+        # Worker only node
+        try:
+            get_node_info()
+        except AssertionError:
+            assert hostname in runner.get_hosts("docker_swarm_workers")
+            assert hostname not in runner.get_hosts("docker_swarm_managers")
+
+    elif hostname in {"ubuntu16", "extra_manager2"}:
+        # Manager only node
+        node_info = get_node_info()
+        assert node_info["Role"] == "manager"
+        assert node_info["Availability"] == "drain"
+
+    elif hostname == "extra_manager":
+        # Manager and worker node
+        node_info = get_node_info()
+        assert node_info["Role"] == "manager"
+        assert node_info["Availability"] == "active"
+
+    else:
+        assert False, "Unexpected hostname in swarm setup: %s" % hostname
+
+
 def test_docker_swarm_labels(host):
     def get_labels(hostname):
         cmd = "docker node inspect %s --format '{{json .Spec.Labels}}'"
