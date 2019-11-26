@@ -16,7 +16,7 @@
 ```yaml
 - src: https://github.com/5monkeys/ansible-docker-role
   name: docker
-``` 
+```
 
 * Update `ansible.cfg` to search for roles relative to playbook:
 
@@ -51,7 +51,7 @@ docker_use_tls: true
 docker_tls_organization: "Acme"
 # Where to place certificates on host
 docker_tls_path: "/etc/docker/certs"
-# When the client certificate should expire. 
+# When the client certificate should expire.
 docker_tls_client_expires_after: "+52w"
 # The client certificate common name
 docker_tls_client_common_name: "client"
@@ -60,12 +60,49 @@ docker_tls_client_common_name: "client"
 docker_enable_swarm: true
 # What version of the python openssl library to use
 docker_py_openssl_version: "19.0.0"
+
+# These are only relevant when 'docker_enable_swarm' is true
+docker_swarm_interface: "{{ ansible_default_ipv4['interface'] }}"
+docker_swarm_addr: "{{ hostvars[inventory_hostname]['ansible_' + docker_swarm_interface]['ipv4']['address'] }}"
+docker_swarm_port: 2377
+
+# No node labels set per default
+docker_swarm_labels: {}
 ```
 
-## Example playbook
+## Example playbook(s)
+
+Be aware of that both the order of the groups and targets within the
+`docker_swarm_managers` group shown below matters.
+
+The first host in the `docker_swarm_managers` group will be initiated as the master node.
+
+Any host declared in both groups will be configured as a manager and worker(or master 
+and worker if above is true).
+
+_Declaration order of the hosts groups matters_, we expect the `docker_swarm_managers`
+group to come before the `docker_swarm_workers` group in any hosts file.
+
+In order to declare a node as both worker and manager, it has to be explicitly
+declared in both `docker_swarm_managers` and `docker_swarm_workers` groups. _Unlike
+the default behaviour from docker_, where a joining manager node will perform tasks,
+if not `--availability=[drain|pause]` argument is given.
+
+### Single node setup
+
+```ini
+# hosts file
+[docker_swarm_managers]
+host1
+
+[docker_swarm_workers]
+host1
+```
+
 ```yaml
+# playbook.yml
 - name: Setup docker
-  hosts: managers
+  hosts: all
   become: true
   become_user: root
   roles:
@@ -74,4 +111,95 @@ docker_py_openssl_version: "19.0.0"
     docker_home: "{{ inventory_dir }}/.certs/"
     docker_tls_organization: "my_org"
     docker_ce_version: "18.06"
+    docker_swarm_interface: eth0
+    docker_swarm_addr: "192.168.1.100"
+    docker_swarm_port: 2377
+```
+
+### Multi node setup
+
+A multi node setup only accepts a `docker_swarm_managers` group with an **odd**
+host count. This is in line with Docker's recommendation([which you can read more
+about here](https://docs.docker.com/engine/swarm/admin_guide/)).
+
+```ini
+# hosts file
+[docker_swarm_managers]
+manager1  # <-- Will be initiated as master node
+manager2
+manager3
+
+[docker_swarm_workers]
+worker1
+worker2
+manager3  # <-- A manager node accepting tasks
+```
+
+```yaml
+# playbook.yml
+- name: Setup docker swarm
+  hosts: all
+  become: true
+  become_user: root
+  roles:
+    - docker
+  vars:
+    docker_home: "{{ inventory_dir }}/.certs/"
+    docker_tls_organization: "my_org"
+    docker_ce_version: "18.06"
+    docker_enable_swarm: true
+```
+
+## Adding labels to swarm nodes
+
+The playbook looks for a declared variable named `docker_swarm_labels` in order
+to set swarm labels on a node.
+
+`docker_swarm_labels` is expected to be defined as a dict.
+
+For a given host, the value of the `docker_swarm_labels` variable will replace
+_all_ of the node's current labels. As so; if a node had previously defined any
+labels, running your playbook again but now with an undefined or empty
+`docker_swarm_labels` variable would remove _all_ labels from that node.
+
+```yml
+# playbook.yml
+- name: Setup docker swarm
+  hosts: all
+  become: true
+  become_user: root
+  roles:
+    - docker
+  vars:
+    docker_swarm_labels:
+      all_nodes: gets_this_label
+```
+
+## Converting "manager and worker" node to "manager only" node
+
+Converting an already deployed "manager and worker" node to a "manager only" node
+is done by removing the node from the `docker_swarm_workers` group.
+
+Consider an initial deploy with a hosts file like:
+
+```ini
+# hosts file
+[docker_swarm_managers]
+host1
+
+[docker_swarm_workers]
+host1
+worker1
+```
+
+Now changing hosts to what follows and then running your playbook again would set
+the node as "manager only":
+
+```ini
+# hosts file
+[docker_swarm_managers]
+host1
+
+[docker_swarm_workers]
+worker1
 ```
