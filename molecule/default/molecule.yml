@@ -41,6 +41,16 @@ provisioner:
   name: ansible
   lint:
     name: ansible-lint
+  inventory:
+    host_vars:
+      ubuntu16:
+        docker_swarm_labels:
+          one: manager
+          second: label
+    group_vars:
+      docker_swarm_workers:
+        docker_swarm_labels:
+          a: worker
 scenario:
   name: default
 verifier:

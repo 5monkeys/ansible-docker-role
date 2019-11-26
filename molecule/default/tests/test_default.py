@@ -44,3 +44,16 @@ def test_docker_swarm_status(host):
         assert not swarm_info["ControlAvailable"], msg
     else:
         assert False, "Unexpected hostname in swarm setup: %s" % hostname
+
+
+def test_docker_swarm_labels(host):
+    def get_labels(hostname):
+        cmd = "docker node inspect %s --format '{{json .Spec.Labels}}'"
+        return json.loads(host.check_output(cmd % hostname))
+
+    hostname = host.check_output("hostname -s")
+    if hostname in runner.get_hosts("docker_swarm_managers"):
+        assert get_labels("ubuntu16") == {"one": "manager", "second": "label"}
+        assert get_labels("ubuntu18") == {"a": "worker"}
+        assert get_labels("extra_manager") == {"a": "worker"}
+        assert get_labels("extra_manager2") == {}
