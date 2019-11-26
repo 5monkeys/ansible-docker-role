@@ -37,8 +37,8 @@ def test_docker_swarm_status(host):
     if hostname in runner.get_hosts("docker_swarm_managers"):
         msg = "Expected '%s' to be a manager" % hostname
         assert swarm_info["ControlAvailable"], msg
-        assert swarm_info["Managers"] == 2
-        assert swarm_info["Nodes"] == 3
+        assert swarm_info["Managers"] == 3
+        assert swarm_info["Nodes"] == 4
     elif hostname in runner.get_hosts("docker_swarm_workers"):
         msg = "Expected '%s' to be a worker" % hostname
         assert not swarm_info["ControlAvailable"], msg

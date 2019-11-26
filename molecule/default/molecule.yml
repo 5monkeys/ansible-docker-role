@@ -37,6 +37,16 @@ platforms:
     groups:
       - docker_swarm_managers
       - docker_swarm_workers
+  - name: extra_manager2
+    image: ubuntu:18.04
+    cap_add:
+      - SYS_ADMIN
+    volume_mounts:
+      - "/sys/fs/cgroup:/sys/fs/cgroup:ro"
+    command: /sbin/init
+    privileged: true
+    groups:
+      - docker_swarm_managers
 
 provisioner:
   name: ansible

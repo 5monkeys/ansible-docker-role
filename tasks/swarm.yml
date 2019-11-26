@@ -1,5 +1,13 @@
 ---
 
+- name: Ensure number of swarm manager nodes
+  assert:
+    that:
+      - "{{ (groups['docker_swarm_managers'] | length) % 2 }} == 1 "
+    msg: "'docker_swarm_managers' has to count to an odd
+      number(currently: {{ groups['docker_swarm_managers'] | length }})"
+    quiet: true
+
 - name: Initialize swarm master
   docker_swarm:
     state: present
