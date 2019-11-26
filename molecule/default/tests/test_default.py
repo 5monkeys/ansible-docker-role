@@ -51,6 +51,8 @@ def test_docker_manager_node_availability(host):
 
     def get_node_info():
         cmd = "docker node inspect self --format '{{json .Spec}}'"
+        # Raises an AssertionError based on the return code of
+        # given command
         return json.loads(host.check_output(cmd))
 
     if hostname == "ubuntu18":
