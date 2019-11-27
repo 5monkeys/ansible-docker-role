@@ -72,16 +72,10 @@ docker_swarm_labels: {}
 
 ## Example playbook(s)
 
-Be aware of that both the order of the groups and targets within the
-`docker_swarm_managers` group shown below matters.
-
 The first host in the `docker_swarm_managers` group will be initiated as the master node.
 
 Any host declared in both groups will be configured as a manager and worker(or master 
 and worker if above is true).
-
-_Declaration order of the hosts groups matters_, we expect the `docker_swarm_managers`
-group to come before the `docker_swarm_workers` group in any hosts file.
 
 In order to declare a node as both worker and manager, it has to be explicitly
 declared in both `docker_swarm_managers` and `docker_swarm_workers` groups. _Unlike
@@ -113,10 +107,7 @@ host1
   vars:
     docker_home: "{{ inventory_dir }}/.certs/"
     docker_tls_organization: "my_org"
-    docker_ce_version: "18.06"
-    docker_swarm_interface: eth0
-    docker_swarm_addr: "192.168.1.100"
-    docker_swarm_port: 2377
+    docker_ce_version: "5:19.03"
 ```
 
 ### Multi node setup
@@ -153,7 +144,7 @@ docker_swarm_workers
   vars:
     docker_home: "{{ inventory_dir }}/.certs/"
     docker_tls_organization: "my_org"
-    docker_ce_version: "18.06"
+    docker_ce_version: "5:19.03"
     docker_enable_swarm: true
 ```
 
