@@ -8,24 +8,24 @@
       number(currently: {{ groups['docker_swarm_managers'] | length }})"
     quiet: true
 
+- name: Make node addresses available via hostvars
+  set_fact:
+    master_node: "{{ groups['docker_swarm_managers'] | first }}"
+    docker_swarm_addr: "{{ docker_swarm_addr }}"
+    docker_swarm_port: "{{ docker_swarm_port }}"
+    docker_swarm_addr_full: "{{ docker_swarm_addr }}:{{ docker_swarm_port }}"
+
 - name: Initialize swarm master
   docker_swarm:
     state: present
-    advertise_addr: "{{ docker_swarm_addr }}"
+    advertise_addr: "{{ hostvars[master_node]['docker_swarm_addr'] }}"
+    listen_addr: "{{ hostvars[master_node]['docker_swarm_addr_full'] }}"
   # 'run_once' and 'delegate_to' allows us to register 'swarm' for all hosts
-  # Although this relies on declaration order of the hosts in order to work
-  # i.e. swarm manager group has to come before the worker group
   run_once: true
-  delegate_to: "{{ groups['docker_swarm_managers'] | first }}"
+  delegate_to: "{{ master_node }}"
   register: "swarm"
   notify:
     - restart docker
-
-- name: Declare swarm master address as a fact
-  set_fact:
-    swarm_master_address: "{{ docker_swarm_addr }}:{{ docker_swarm_port }}"
-  run_once: true
-  delegate_to: "{{ groups['docker_swarm_managers'] | first }}"
 
 - name: Join swarm worker nodes
   docker_swarm:
@@ -33,7 +33,7 @@
     advertise_addr: "{{ docker_swarm_addr }}"
     listen_addr: "{{ docker_swarm_addr }}:{{ docker_swarm_port }}"
     join_token: "{{ swarm.swarm_facts.JoinTokens.Worker }}"
-    remote_addrs: ["{{ swarm_master_address }}"]
+    remote_addrs: ["{{ hostvars[master_node]['docker_swarm_addr_full'] }}"]
   # Skip all managers moonlighting as workers
   when: "'docker_swarm_workers' in group_names
     and 'docker_swarm_managers' not in group_names"
@@ -44,9 +44,8 @@
     advertise_addr: "{{ docker_swarm_addr }}"
     listen_addr: "{{ docker_swarm_addr }}:{{ docker_swarm_port }}"
     join_token: "{{ swarm.swarm_facts.JoinTokens.Manager }}"
-    remote_addrs: ["{{ swarm_master_address }}"]
-  when: "'docker_swarm_managers' in group_names
-    and inventory_hostname != groups['docker_swarm_managers'] | first"
+    remote_addrs: ["{{ hostvars[master_node]['docker_swarm_addr_full'] }}"]
+  when: "'docker_swarm_managers' in group_names and inventory_hostname != master_node"
 
 - name: Set correct node availability on managers
   docker_node:
