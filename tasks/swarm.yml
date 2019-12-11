@@ -52,3 +52,4 @@
     availability: "{% if 'docker_swarm_workers' not in group_names %}drain{% else %}active{% endif %}"
     hostname: "{{ ansible_hostname }}"
   when: "'docker_swarm_managers' in group_names"
+  delegate_to: "{{ master_node }}"
