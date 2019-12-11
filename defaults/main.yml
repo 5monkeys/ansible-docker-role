@@ -7,7 +7,7 @@ docker_hosts:
 docker_storage_driver: "overlay2"
 docker_python_version: "4.0.1"
 
-docker_use_tls: true
+docker_use_tls: "{{ 'docker_swarm_managers' in group_names }}"
 docker_tls_organization: "Acme"
 docker_tls_path: "/etc/docker/certs"
 docker_tls_client_expires_after: "+52w"

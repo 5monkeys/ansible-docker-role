@@ -46,7 +46,7 @@ docker_storage_driver: "overlay2"
 docker_python_version: "4.0.1"
 
 # If TLS should be enabled on the docker daemon and SSL-certificates generated
-docker_use_tls: true
+docker_use_tls: "{{ 'docker_swarm_managers' in group_names }}"
 # What to set as Organization in SSL-certificates
 docker_tls_organization: "Acme"
 # Where to place certificates on host
