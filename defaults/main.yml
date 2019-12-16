@@ -7,7 +7,7 @@ docker_hosts:
 docker_storage_driver: "overlay2"
 docker_python_version: "4.0.1"
 
-docker_use_tls: true
+docker_use_tls: "{{ 'docker_swarm_managers' in group_names }}"
 docker_tls_organization: "Acme"
 docker_tls_path: "/etc/docker/certs"
 docker_tls_client_expires_after: "+52w"
@@ -15,3 +15,8 @@ docker_tls_client_common_name: "client"
 
 docker_enable_swarm: true
 docker_py_openssl_version: "19.0.0"
+
+# These are only relevant when 'docker_enable_swarm' is true
+docker_swarm_interface: "{{ ansible_default_ipv4['interface'] }}"
+docker_swarm_addr: "{{ hostvars[inventory_hostname]['ansible_' + docker_swarm_interface]['ipv4']['address'] }}"
+docker_swarm_port: 2377
