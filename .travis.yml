@@ -10,4 +10,4 @@ install:
   - pip install testinfra molecule docker
 
 script:
-  - molecule --debug test
+  - travis_wait molecule test
