@@ -69,7 +69,7 @@
     extended_key_usage:
       - "serverAuth"
     subject_alt_name:
-      - "IP:{{ ansible_eth0.ipv4.address }}"
+      - "IP:{{ ansible_default_ipv4.address|default(ansible_all_ipv4_addresses[0]) }}"
       - "IP:127.0.0.1"
       - "DNS:localhost"
   notify:
