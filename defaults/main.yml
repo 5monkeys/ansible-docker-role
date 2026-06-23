@@ -15,6 +15,7 @@ docker_tls_client_common_name: "client"
 
 docker_enable_swarm: true
 docker_py_openssl_version: "19.0.0"
+docker_cryptography_version: "3.3.2"
 
 # These are only relevant when 'docker_enable_swarm' is true
 docker_swarm_interface: "{{ ansible_default_ipv4['interface'] }}"
