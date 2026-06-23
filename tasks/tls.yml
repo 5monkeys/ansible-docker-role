@@ -24,6 +24,8 @@
 - name: ca-key.pem
   openssl_privatekey:
     path: "{{ docker_tls_path }}/ca-key.pem"
+  run_once: true
+  delegate_to: "{{ groups['docker_swarm_managers'] | first }}"
   register: root_cert
   notify:
     - restart docker
@@ -37,6 +39,8 @@
     common_name: "Root CA Certificate"
     organization_name: "{{ docker_tls_organization }}"
     basic_constraints: "CA:TRUE"
+  run_once: true
+  delegate_to: "{{ groups['docker_swarm_managers'] | first }}"
   notify:
     - restart docker
   tags:
@@ -48,6 +52,8 @@
     privatekey_path: "{{ docker_tls_path }}/ca-key.pem"
     csr_path: "{{ docker_tls_path }}/ca.csr"
     provider: selfsigned
+  run_once: true
+  delegate_to: "{{ groups['docker_swarm_managers'] | first }}"
   notify:
     - restart docker
   tags:
@@ -56,6 +62,8 @@
 - name: server-key.pem
   openssl_privatekey:
     path: "{{ docker_tls_path }}/server-key.pem"
+  run_once: true
+  delegate_to: "{{ groups['docker_swarm_managers'] | first }}"
   notify:
     - restart docker
   tags:
@@ -72,6 +80,8 @@
       - "IP:{{ ansible_eth0.ipv4.address }}"
       - "IP:127.0.0.1"
       - "DNS:localhost"
+  run_once: true
+  delegate_to: "{{ groups['docker_swarm_managers'] | first }}"
   notify:
     - restart docker
   tags:
@@ -84,6 +94,8 @@
     provider: ownca
     ownca_path: "{{ docker_tls_path }}/ca.pem"
     ownca_privatekey_path: "{{ docker_tls_path }}/ca-key.pem"
+  run_once: true
+  delegate_to: "{{ groups['docker_swarm_managers'] | first }}"
   notify:
     - restart docker
   tags:
@@ -102,7 +114,10 @@
 - name: key.pem
   openssl_privatekey:
     path: "{{ docker_tls_path }}/key.pem"
+  run_once: true
+  delegate_to: "{{ groups['docker_swarm_managers'] | first }}"
   tags:
+    - tls-server
     - tls-client
 
 - name: client.csr
@@ -113,6 +128,8 @@
     common_name: "{{ docker_tls_client_common_name }}"
     extendedKeyUsage:
       - "clientAuth"
+  run_once: true
+  delegate_to: "{{ groups['docker_swarm_managers'] | first }}"
   tags:
     - tls-server
 
@@ -124,14 +141,47 @@
     ownca_path: "{{ docker_tls_path }}/ca.pem"
     ownca_privatekey_path: "{{ docker_tls_path }}/ca-key.pem"
     ownca_not_after: "{{ docker_tls_client_expires_after|default(omit) }}"
+  run_once: true
+  delegate_to: "{{ groups['docker_swarm_managers'] | first }}"
   tags:
+    - tls-server
     - tls-client
+
+- name: Read server certificates
+  slurp:
+    src: "{{ docker_tls_path }}/{{ item }}"
+  with_items:
+    - ca-key.pem
+    - ca.csr
+    - ca.pem
+    - server-key.pem
+    - server.csr
+    - server-cert.pem
+    - key.pem
+    - cert.pem
+  register: certs
+  delegate_to: "{{ groups['docker_swarm_managers'] | first }}"
+  run_once: true
+  tags:
+    - tls-server
+
+- name: Pass server certificates to manager nodes
+  copy:
+    content: "{{ item.content | b64decode }}"
+    dest: "{{ item.source }}"
+  loop: "{{ certs.results }}"
+  loop_control:
+    label: "{{ item.source }}"
+  when: "inventory_hostname in groups['docker_swarm_managers'][1:]"
+  tags:
+    - tls-server
 
 - name: Download client certificates
   fetch:
     src: "{{ docker_tls_path }}/{{ item }}"
     dest: "{{ docker_home }}"
     flat: true
+  when: "inventory_hostname == (groups['docker_swarm_managers'] | first)"
   with_items:
     - ca.pem
     - key.pem
@@ -139,9 +189,3 @@
   tags:
     - tls-client
     - tls-download
-    # The tests may fail sometimes here because due to a race condition caused
-    # by files being downloaded to the same place by the different platforms
-    # molecule is run against. There seem to be no supported way of separating
-    # the workspaces between the platforms, so we have to skip this task when
-    # running tests.
-    - molecule-notest

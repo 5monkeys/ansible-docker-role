@@ -16,6 +16,12 @@
   tags:
     - swarm
 
+- import_tasks: swarm-labels.yml
+  when: docker_enable_swarm|bool
+  tags:
+    - swarm
+    - swarm_labels
+
 - import_tasks: configure.yml
   tags:
     - configure

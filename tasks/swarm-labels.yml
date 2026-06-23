@@ -1,0 +1,8 @@
+---
+
+- name: Assign labels to swarm nodes
+  docker_node:
+    hostname: "{{ ansible_hostname }}"
+    labels: "{{ docker_swarm_labels | default({}) }}"
+    labels_state: replace
+  delegate_to: "{{ groups['docker_swarm_managers'] | first }}"

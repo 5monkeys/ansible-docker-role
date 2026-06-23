@@ -1,9 +1,55 @@
 ---
 
-- name: Initialize swarm manager
+- name: Ensure number of swarm manager nodes
+  assert:
+    that:
+      - "{{ (groups['docker_swarm_managers'] | length) % 2 }} == 1 "
+    msg: "'docker_swarm_managers' has to count to an odd
+      number(currently: {{ groups['docker_swarm_managers'] | length }})"
+    quiet: true
+
+- name: Make node addresses available via hostvars
+  set_fact:
+    master_node: "{{ groups['docker_swarm_managers'] | first }}"
+    docker_swarm_addr: "{{ docker_swarm_addr }}"
+    docker_swarm_port: "{{ docker_swarm_port }}"
+    docker_swarm_addr_full: "{{ docker_swarm_addr }}:{{ docker_swarm_port }}"
+
+- name: Initialize swarm master
   docker_swarm:
     state: present
-    advertise_addr: "{{ ansible_eth0.ipv4.address }}"
+    advertise_addr: "{{ hostvars[master_node]['docker_swarm_addr'] }}"
+    listen_addr: "{{ hostvars[master_node]['docker_swarm_addr_full'] }}"
+  # 'run_once' and 'delegate_to' allows us to register 'swarm' for all hosts
+  run_once: true
+  delegate_to: "{{ master_node }}"
   register: "swarm"
   notify:
     - restart docker
+
+- name: Join swarm worker nodes
+  docker_swarm:
+    state: join
+    advertise_addr: "{{ docker_swarm_addr }}"
+    listen_addr: "{{ docker_swarm_addr }}:{{ docker_swarm_port }}"
+    join_token: "{{ swarm.swarm_facts.JoinTokens.Worker }}"
+    remote_addrs: ["{{ hostvars[master_node]['docker_swarm_addr_full'] }}"]
+  # Skip all managers moonlighting as workers
+  when: "'docker_swarm_workers' in group_names
+    and 'docker_swarm_managers' not in group_names"
+
+- name: Join swarm manager nodes
+  docker_swarm:
+    state: join
+    advertise_addr: "{{ docker_swarm_addr }}"
+    listen_addr: "{{ docker_swarm_addr }}:{{ docker_swarm_port }}"
+    join_token: "{{ swarm.swarm_facts.JoinTokens.Manager }}"
+    remote_addrs: ["{{ hostvars[master_node]['docker_swarm_addr_full'] }}"]
+  when: "'docker_swarm_managers' in group_names and inventory_hostname != master_node"
+
+- name: Set correct node availability on managers
+  docker_node:
+    availability: "{% if 'docker_swarm_workers' not in group_names %}drain{% else %}active{% endif %}"
+    hostname: "{{ ansible_hostname }}"
+  when: "'docker_swarm_managers' in group_names"
+  delegate_to: "{{ master_node }}"
